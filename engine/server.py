@@ -16,4 +16,5 @@ def api_search():
 
 
 if __name__ == "__main__":
-    build_dict()
+    # build_dict()
+    app.run()
