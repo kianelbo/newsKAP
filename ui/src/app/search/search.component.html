@@ -1,0 +1,8 @@
+<app-query-bar></app-query-bar>
+<hr>
+<div *ngFor="let n of newsList">
+  <h4>{{n.title}}</h4>
+  <small>{{n.date}} from: {{n.source}}</small>
+  <p>{{n.summary}}</p>
+  <img src="{{n.thumbnail}}" alt="thumbnail">
+</div>
