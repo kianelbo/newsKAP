@@ -1,5 +1,6 @@
 # Dataset
 *.xlsx
+*.pickle
 
 # IDEs and editors
 .idea/
