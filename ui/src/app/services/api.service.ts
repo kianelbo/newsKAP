@@ -6,11 +6,16 @@ import {HttpClient} from '@angular/common/http';
 })
 export class ApiService {
   private searchURL = 'http://127.0.0.1:5000/search?q=';
+  private viewURL = 'http://127.0.0.1:5000/view/';
 
   constructor(private http: HttpClient) { }
 
   getResults(queryStr: string) {
     return this.http.get<News[]>(this.searchURL + queryStr);
+  }
+
+  viewNews(id: string) {
+    return this.http.get<News>(this.viewURL + id);
   }
 }
 
@@ -23,4 +28,5 @@ export interface News {
   content: string;
   thumbnail: string;
   relevance: number;
+  id: string;
 }

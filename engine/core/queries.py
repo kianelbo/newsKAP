@@ -44,5 +44,10 @@ def search(q_str):
         data_values = sheet.row_values(d)
         n = dict(zip(data_keys, data_values))
         n['relevance'] = 1
+        n['id'] = d
         results.append(n)
     return results
+
+
+def view_news(news_id):
+    return dict(zip(data_keys, sheet.row_values(int(news_id))))
