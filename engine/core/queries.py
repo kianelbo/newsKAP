@@ -2,9 +2,10 @@ import pickle
 import shlex
 import xlrd
 from configs import dataset_path, index_file_path
-
+from core.preprocessing import clean_token, stop_words
 
 postings_list = pickle.load(open(index_file_path, 'rb'))
+vocabulary = postings_list.keys()
 sheet = xlrd.open_workbook(dataset_path).sheet_by_index(0)
 
 data_keys = ['date', 'title', 'source', 'summary', 'tags', 'content', 'thumbnail']
@@ -15,29 +16,69 @@ def query_tokenize(q_str):
     not_tokens = []
     regular_tokens = []
     for q in shlex.split(q_str):
+        cleaned_q = clean_token(q)
+        if cleaned_q in stop_words or cleaned_q not in vocabulary:
+            continue
         if ' ' in q:
-            phrase_tokens.append(q)
-        elif '!' in q:
-            not_tokens.append(q[1:])
+            phrase_tokens.append((cleaned_q, 2))
+        elif q[0] == '!':
+            not_tokens.append((cleaned_q, 3))
         else:
-            regular_tokens.append(q)
-    regular_tokens.sort(key=lambda x: len(postings_list[x]))
-    return phrase_tokens, regular_tokens, not_tokens
+            regular_tokens.append((cleaned_q, 1))
+    regular_tokens.sort(key=lambda x: len(postings_list[x[0]]))
+    return phrase_tokens + regular_tokens + not_tokens
+
+
+def search_phrase(phrase):
+    words = phrase.split()
+    s = 0
+    while s < len(words) and words[s] in stop_words:
+        s += 1
+    if s == len(words):
+        return []
+
+    common_docs = set(postings_list[words[s]].keys())
+    for i in range(s + 1, len(words)):
+        common_docs &= set(postings_list[words[i]].keys())
+
+    results = set()
+    for cd in common_docs:
+        for pos in postings_list[words[s]][cd]:
+            flag = True
+            for i in range(s + 1, len(words)):
+                if words[i] in stop_words:
+                    continue
+                if pos + i - s not in postings_list[words[i]][cd]:
+                    flag = False
+                    break
+            if flag:
+                results.add(cd)
+                break
+    return results
 
 
 def search(q_str):
-    phrase_tokens, regular_tokens, not_tokens = query_tokenize(q_str)
-    docs = set(postings_list[regular_tokens[0]].keys())
-    for t in regular_tokens[1:]:
+    parts = query_tokenize(q_str)
+
+    if not parts or parts[0][1] == 3:                   # empty query or without regular tokens or phrases
+        return []
+
+    docs = set()
+    if parts[0][1] == 2:                                # first searching the phrase if exists
+        docs = search_phrase(parts[0][0])
+    else:                                               # regular word
+        docs.update(postings_list[parts[0][0]].keys())
+
+    for t in parts[1:]:
         if not docs:
             break
-        docs.intersection_update(postings_list[t].keys())
-
-    if docs:
-        for nt in not_tokens:
-            for d in postings_list[nt].keys():
-                if d in docs:
-                    docs.remove(d)
+        if t[1] == 2:
+            docs &= search_phrase(t[0])
+            docs.intersection_update(postings_list[t].keys())
+        elif t[1] == 3:
+            docs -= set(postings_list[t[0]].keys())
+        else:
+            docs &= set(postings_list[t[0]].keys())
 
     results = []
     for d in docs:

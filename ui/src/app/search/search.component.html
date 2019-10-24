@@ -1,5 +1,6 @@
 <app-query-bar></app-query-bar>
 <hr>
+<h2 *ngIf="newsList.length == 0">No results were found :(</h2>
 <div *ngFor="let n of newsList">
   <h4><a target="_blank" href="/view/{{n.id}}">{{n.title}}</a></h4>
   <small>{{n.date}} from: {{n.source}}</small>
