@@ -11,15 +11,25 @@ export class ApiService {
   constructor(private http: HttpClient) { }
 
   getResults(queryStr: string) {
-    return this.http.get<News[]>(this.searchURL + queryStr);
+    return this.http.get<NewsMiniItem[]>(this.searchURL + queryStr);
   }
 
   viewNews(id: string) {
-    return this.http.get<News>(this.viewURL + id);
+    return this.http.get<NewsFullView>(this.viewURL + id);
   }
 }
 
-export interface News {
+export interface NewsMiniItem {
+  date: string;
+  title: string;
+  source: string;
+  preview: string;
+  thumbnail: string;
+  relevance: number;
+  id: string;
+}
+
+export interface NewsFullView {
   date: string;
   title: string;
   source: string;
@@ -27,6 +37,4 @@ export interface News {
   tags: string[];
   content: string;
   thumbnail: string;
-  relevance: number;
-  id: string;
 }

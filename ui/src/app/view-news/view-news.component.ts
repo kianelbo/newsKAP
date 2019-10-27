@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ApiService, News } from '../services/api.service';
+import { ApiService, NewsFullView } from '../services/api.service';
 
 @Component({
   selector: 'app-view-news',
@@ -8,7 +8,7 @@ import { ApiService, News } from '../services/api.service';
   styleUrls: ['./view-news.component.css']
 })
 export class ViewNewsComponent implements OnInit {
-  news: News;
+  news: NewsFullView;
 
   constructor(private route: ActivatedRoute,
               private apiService: ApiService) { }

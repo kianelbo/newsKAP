@@ -4,6 +4,6 @@
 <div *ngFor="let n of newsList">
   <h4><a target="_blank" href="/view/{{n.id}}">{{n.title}}</a></h4>
   <small>{{n.date}} from: {{n.source}}</small>
-  <p>{{n.summary}}</p>
-  <img src="{{n.thumbnail}}" alt="thumbnail" width="200" height="200">
+  <p>{{n.preview}}</p>
+  <img [src]="n.thumbnail" alt="thumbnail" width="200" height="200">
 </div>

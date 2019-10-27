@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ApiService, News } from '../services/api.service';
+import { ApiService, NewsMiniItem } from '../services/api.service';
 
 @Component({
   selector: 'app-search',
@@ -8,7 +8,7 @@ import { ApiService, News } from '../services/api.service';
   styleUrls: ['./search.component.css']
 })
 export class SearchComponent implements OnInit {
-  newsList: News[];
+  newsList: NewsMiniItem[];
 
   constructor(private route: ActivatedRoute,
               private apiService: ApiService) { }

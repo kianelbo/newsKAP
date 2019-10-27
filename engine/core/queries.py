@@ -20,7 +20,7 @@ def query_tokenize(q_str):
     category_phrase = ""
     for q in shlex.split(q_str):
         cleaned_q = clean_token(q)
-        if cleaned_q in stop_words or cleaned_q not in vocabulary:
+        if cleaned_q in stop_words:
             continue
         if ' ' in q:
             phrase_tokens.append((cleaned_q, 2))
@@ -37,18 +37,20 @@ def query_tokenize(q_str):
 
 
 def search_phrase(phrase):
+    results = set()
+
     words = phrase.split()
     s = 0
     while s < len(words) and words[s] in stop_words:
         s += 1
     if s == len(words):
-        return []
+        return results
 
     common_docs = set(postings_list[words[s]].keys())
     for i in range(s + 1, len(words)):
-        common_docs &= set(postings_list[words[i]].keys())
+        if words[i] not in stop_words:
+            common_docs &= set(postings_list[words[i]].keys())
 
-    results = set()
     for cd in common_docs:
         for pos in postings_list[words[s]][cd]:
             flag = True
@@ -64,16 +66,16 @@ def search_phrase(phrase):
     return results
 
 
-def search(q_str):
+def retrieve_docs(q_str):
     parts, source, category = query_tokenize(q_str)
+    docs = set()
 
     if source or category:
         pass
 
     if not parts or parts[0][1] == 3:                   # empty query or without regular tokens or phrases
-        return []
+        return docs
 
-    docs = set()
     if parts[0][1] == 2:                                # first searching the phrase if exists
         docs = search_phrase(parts[0][0])
     else:                                               # regular word
@@ -84,18 +86,21 @@ def search(q_str):
             break
         if t[1] == 2:
             docs &= search_phrase(t[0])
-            docs.intersection_update(postings_list[t].keys())
         elif t[1] == 3:
             docs -= set(postings_list[t[0]].keys())
         else:
             docs &= set(postings_list[t[0]].keys())
 
+    return docs
+
+
+def search(q_str):
+    docs = retrieve_docs(q_str)
     results = []
     for d in docs:
-        data_values = sheet.row_values(d)
-        n = dict(zip(data_keys, data_values))
-        n['relevance'] = random.random()
-        n['id'] = d
+        n = {'date': sheet.cell_value(d, 0), 'title': sheet.cell_value(d, 1), 'source': sheet.cell_value(d, 2),
+             'preview': sheet.cell_value(d, 3), 'thumbnail': sheet.cell_value(d, 6), 'relevance': random.random(),
+             'id': d}
         results.append(n)
     return results
 
