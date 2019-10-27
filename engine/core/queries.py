@@ -1,4 +1,5 @@
 import pickle
+import random
 import shlex
 import xlrd
 from configs import dataset_path, index_file_path
@@ -15,6 +16,8 @@ def query_tokenize(q_str):
     phrase_tokens = []
     not_tokens = []
     regular_tokens = []
+    source_phrase = ""
+    category_phrase = ""
     for q in shlex.split(q_str):
         cleaned_q = clean_token(q)
         if cleaned_q in stop_words or cleaned_q not in vocabulary:
@@ -23,10 +26,14 @@ def query_tokenize(q_str):
             phrase_tokens.append((cleaned_q, 2))
         elif q[0] == '!':
             not_tokens.append((cleaned_q, 3))
+        elif q.startswith('source:'):
+            source_phrase = q[7:]
+        elif q.startswith('cat:'):
+            category_phrase = q[4:]
         else:
             regular_tokens.append((cleaned_q, 1))
     regular_tokens.sort(key=lambda x: len(postings_list[x[0]]))
-    return phrase_tokens + regular_tokens + not_tokens
+    return phrase_tokens + regular_tokens + not_tokens, source_phrase, category_phrase
 
 
 def search_phrase(phrase):
@@ -58,7 +65,10 @@ def search_phrase(phrase):
 
 
 def search(q_str):
-    parts = query_tokenize(q_str)
+    parts, source, category = query_tokenize(q_str)
+
+    if source or category:
+        pass
 
     if not parts or parts[0][1] == 3:                   # empty query or without regular tokens or phrases
         return []
@@ -84,7 +94,7 @@ def search(q_str):
     for d in docs:
         data_values = sheet.row_values(d)
         n = dict(zip(data_keys, data_values))
-        n['relevance'] = 1
+        n['relevance'] = random.random()
         n['id'] = d
         results.append(n)
     return results
