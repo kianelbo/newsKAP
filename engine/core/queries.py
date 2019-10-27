@@ -3,7 +3,7 @@ import random
 import shlex
 import xlrd
 from configs import dataset_path, index_file_path
-from core.preprocessing import clean_token, stop_words
+from core.processing import clean_token, remove_html, stop_words
 
 postings_list = pickle.load(open(index_file_path, 'rb'))
 vocabulary = postings_list.keys()
@@ -106,4 +106,6 @@ def search(q_str):
 
 
 def view_news(news_id):
-    return dict(zip(data_keys, sheet.row_values(int(news_id))))
+    n = dict(zip(data_keys, sheet.row_values(int(news_id))))
+    n['content'] = remove_html(n['content'])
+    return n
