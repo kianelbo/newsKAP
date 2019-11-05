@@ -12,6 +12,33 @@ sheet = xlrd.open_workbook(dataset_path).sheet_by_index(0)
 data_keys = ['date', 'title', 'source', 'summary', 'tags', 'content', 'thumbnail']
 
 
+def make_snippet(parts, doc_id):
+    # news_text = remove_html(sheet.cell_value(doc_id, 5))
+    #
+    # sentences = []
+    # i = 0
+    # for s in news_text.split('.'):  # separating sentences
+    #     score = 0
+    #     for part in parts:
+    #         if part in s:
+    #             score += part.count(' ') + 1
+    #     if score > 0:
+    #         sentences.append((s.strip(), score, i))
+    #     i += 1
+    #
+    # # sorting by score and taking at most top 3 sentences
+    # sentences = sorted(sentences, key=lambda t: t[1])[:min(3, len(sentences))]
+    # # keeping the original order
+    # sentences = sorted(sentences, key=lambda t: t[2])
+    #
+    # snippet = '...'.join(sentences[0])
+    # for part in parts:
+    #     snippet.replace(part, '<p class=\"highlight\">' + part + '</p>')
+    #
+    # return snippet
+    return 'snippet'
+
+
 def query_tokenize(q_str):
     phrase_tokens = []
     not_tokens = []
@@ -66,19 +93,15 @@ def search_phrase(phrase):
     return results
 
 
-def retrieve_docs(q_str):
-    parts, source, category = query_tokenize(q_str)
+def retrieve_docs(parts):
     docs = set()
 
-    if source or category:
-        pass
-
-    if not parts or parts[0][1] == 3:                   # empty query or without regular tokens or phrases
+    if not parts or parts[0][1] == 3:  # empty query or without regular tokens or phrases
         return docs
 
-    if parts[0][1] == 2:                                # first searching the phrase if exists
+    if parts[0][1] == 2:  # first searching the phrase if exists
         docs = search_phrase(parts[0][0])
-    else:                                               # regular word
+    else:  # regular word
         docs.update(postings_list[parts[0][0]].keys())
 
     for t in parts[1:]:
@@ -95,11 +118,16 @@ def retrieve_docs(q_str):
 
 
 def search(q_str):
-    docs = retrieve_docs(q_str)
+    parts, source, category = query_tokenize(q_str)
+
+    if source or category:
+        pass
+
+    docs = retrieve_docs(parts)
     results = []
     for d in docs:
         n = {'date': sheet.cell_value(d, 0), 'title': sheet.cell_value(d, 1), 'source': sheet.cell_value(d, 2),
-             'preview': sheet.cell_value(d, 3), 'thumbnail': sheet.cell_value(d, 6), 'relevance': random.random(),
+             'snippet': make_snippet(parts, d), 'thumbnail': sheet.cell_value(d, 6), 'relevance': random.random(),
              'id': d}
         results.append(n)
     return results
