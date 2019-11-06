@@ -25,9 +25,7 @@ def make_snippet(parts, doc_id):
             for pw in p[0].split():
                 if pw not in stop_words:
                     q_tokens.append(pw)
-    for q in q_tokens:
-        for ps in postings_list[q][doc_id]:
-            print(news_words[ps])
+
     snippet_words = set()
     bolds = set()
     for q in q_tokens:
@@ -49,12 +47,12 @@ def make_snippet(parts, doc_id):
                 if news_words[j].endswith('.') or j - i > 5:
                     break
                 j += 1
-    # print([news_words[b] for b in bolds], '\n\n')
+
     sentence_ranges = []
     for k, g in groupby(enumerate(snippet_words), lambda x: x[0] - x[1]):
         group = (map(itemgetter(1), g))
         group = list(map(int, group))
-        sentence_ranges.append(range(group[0], group[-1] + 1))
+        sentence_ranges.append(range(group[0], group[-1]))
         if len(sentence_ranges) > 2:
             break
 
@@ -156,7 +154,7 @@ def search(q_str):
     docs = retrieve_docs(parts)
     results = []
     for d in docs:
-        n = {'date': sheet.cell_value(d, 0), 'title': sheet.cell_value(d, 1), 'source': sheet.cell_value(d, 2),
+        n = {'date': sheet.cell_value(d, 0)[:-7], 'title': sheet.cell_value(d, 1), 'source': sheet.cell_value(d, 2),
              'snippet': make_snippet(parts, d), 'thumbnail': sheet.cell_value(d, 6), 'relevance': random.random(),
              'id': d}
         results.append(n)
@@ -165,5 +163,7 @@ def search(q_str):
 
 def view_news(news_id):
     n = dict(zip(data_keys, sheet.row_values(int(news_id))))
+    n['date'] = n['date'][:-7]
     n['content'] = remove_html(n['content'])
+    n['tags'] = n['tags'][1:-1].replace('"', '').split(',')
     return n

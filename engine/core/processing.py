@@ -18,6 +18,10 @@ def normalize_text(text):
     text = text.replace('\u0643', 'ک')
     text = text.replace('\u064A', 'ی')
     text = text.replace('\u200C', '')
+    text = text.replace('\u0618', '')
+    text = text.replace('\u0619', '')
+    text = text.replace('\u061A', '')
+    text = text.replace('\u0651', '')
     return text
 
 
@@ -44,5 +48,4 @@ def remove_html(text):
 def str_to_date(d):
     d = d.split()
     d[1] = d[1][:-2]  # day
-    d[3] = d[3][:-7]  # time
     return datetime.strptime(' '.join(d), '%B %d %Y, %H:%M')
