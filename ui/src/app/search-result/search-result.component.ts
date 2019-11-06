@@ -24,6 +24,7 @@ export class SearchResultComponent implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       this.searchText = params['q'];
+      this.page = 1;
       this.reSearch();
     });
   }
@@ -34,7 +35,6 @@ export class SearchResultComponent implements OnInit {
 
   reSearch() {
     this.newsService.getSearchResults(this.searchText, this.page, this.sortMethod).subscribe(res => {
-      console.log('result count:' + res.count);
       this.pageCount = Math.floor(res.count / 10) + 1;
       this.results = res.data;
       this.noResult = false;
