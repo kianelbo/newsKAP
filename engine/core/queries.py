@@ -61,7 +61,7 @@ def make_snippet(parts, doc_id):
     snippet = []
     for rng in sentence_ranges:
         for i in rng:
-            snippet.append(news_words[i] if i not in bolds else '<p>' + news_words[i] + '</p>')
+            snippet.append(news_words[i] if i not in bolds else '<span class="bold">' + news_words[i] + '</span>')
         snippet.append('...')
     if snippet[-2].endswith('.'):
         snippet.pop()

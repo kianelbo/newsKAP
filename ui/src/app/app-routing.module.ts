@@ -1,15 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import {SearchResultComponent} from './search-result/search-result.component';
+import {HomeComponent} from './home/home.component';
 
-import { IndexComponent } from './index/index.component';
-import { SearchComponent } from './search/search.component';
-import { ViewNewsComponent } from './view-news/view-news.component';
 
 const routes: Routes = [
-  { path: '', component: IndexComponent },
-  { path: 'index', redirectTo: '', pathMatch: 'full' },
-  { path: 'search', component: SearchComponent },
-  { path: 'view/:id', component: ViewNewsComponent }
+  {path: '', component: HomeComponent},
+  {path: 'search', component: SearchResultComponent}
 ];
 
 @NgModule({

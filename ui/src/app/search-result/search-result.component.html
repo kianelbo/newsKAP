@@ -1,0 +1,86 @@
+<div class="container-fluid">
+  <div class="row search-bar">
+    <div class="col-12 col-lg-6 offset-lg-6">
+
+      <div class="row no-gutters justify-content-end search-box">
+        <div class="col-6">
+          <input [(ngModel)]="searchText" class="form-control form-control-lg" type="search" placeholder="جستجو خبر">
+        </div>
+        <div class="col-auto search-col" (click)="doSearch()">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg"
+               viewBox="0 0 37.016 37.016">
+            <path d="M36.11 31.735l-8.041-8.041c-.043-.043-.093-.073-.138-.112a15.223 15.223 0 1 0-4.35 4.349c.04.045.07.095.112.137l8.042 8.042a3.093 3.093 0 0 0 4.375-4.375zm-20.892-6.574a9.943 9.943 0 1 1 9.943-9.943 9.943 9.943 0 0 1-9.943 9.943z" class="cls-1" data-name="Path 1"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row justify-content-end sort-selection">
+    <div class="col-auto">
+      <a class="sort-item" (click)="sortMethod='mostRelevant'; reSearch()" [ngClass]="{'sort-active' : sortMethod==='mostRelevant'}">مرتبط ترین</a>
+    </div>
+    <div class="col-auto">
+      <a class="sort-item" (click)="sortMethod='newest'; reSearch()" [ngClass]="{'sort-active' : sortMethod==='newest'}">جدید ترین</a>
+    </div>
+  </div>
+
+  <div *ngIf="noResult">
+    <div class="row justify-content-center">
+      <img class="notfound-img" src="../../assets/image/no-resultfound.png"/>
+    </div>
+    <div class="row justify-content-center">
+      <p class="notfound-text">نتیجه ای یافت نشد :(</p>
+    </div>
+  </div>
+
+  <div *ngFor="let news of results" class="row justify-content-end no-gutters result-box">
+    <div class="col-9">
+      <a class="news-title" data-toggle="modal" data-target="#exampleModal" href=""
+         (click)="newsSummaryComponent.reload(news.id);">
+        {{news.title}}
+      </a>
+      <div class="news-desc" [innerHTML]="news.snippet"></div>
+      <p class="news-meta">
+        منبع :{{news.source}}
+      </p>
+      <p class="news-meta">
+        تاریخ :{{news.date}}
+      </p>
+    </div>
+    <img #thumb class="col-3 news-img" src="{{news.thumbnail || '../../assets/image/default_img.png'}}"
+         (error)="thumb.src='../../assets/image/default_img.png'" alt=""/>
+  </div>
+
+  <app-news-summary #newsSummaryComponent></app-news-summary>
+
+  <div *ngIf="!noResult" class="row pagination-div justify-content-center">
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li *ngIf="page>1" class="page-item">
+          <a class="page-link" (click)="page = page -1; reSearch()" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+            <span class="sr-only">Previous</span>
+          </a>
+        </li>
+
+        <li *ngFor="let item of [].constructor(pageCount); let i = index"
+            [ngClass]="{'active' : page == i+1}" class="page-item">
+          <a class="page-link" (click)="page = i+1; reSearch()">{{i+1}}</a>
+        </li>
+
+        <li *ngIf="page<pageCount" class="page-item">
+          <a class="page-link" (click)="page = page +1; reSearch()" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+            <span class="sr-only">Next</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+
+</div>
