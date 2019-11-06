@@ -56,7 +56,9 @@ def make_snippet(parts, doc_id):
     for k, g in groupby(enumerate(snippet_words), lambda x: x[0] - x[1]):
         group = (map(itemgetter(1), g))
         group = list(map(int, group))
-        sentence_ranges.append(range(group[0], group[-1]))
+        r = range(group[0], group[-1])
+        if len(r) > 4:
+            sentence_ranges.append(r)
         if len(sentence_ranges) > 2:
             break
 
@@ -82,7 +84,7 @@ def query_tokenize(q_str):
         if cleaned_q in stop_words:
             continue
         if ' ' in q:
-            phrase_tokens.append((cleaned_q, 2))
+            phrase_tokens.append((' '.join([clean_token(phrase_word) for phrase_word in q.split()]), 2))
         elif q[0] == '!':
             not_tokens.append((cleaned_q, 3))
         elif q.startswith('source:'):
