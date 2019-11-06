@@ -33,20 +33,24 @@ def make_snippet(parts, doc_id):
             bolds.add(i)
             snippet_words.add(i)
 
-            j = i - 1
+            j = i
             while True:
+                j -= 1
                 if j >= 0:
                     snippet_words.add(j)
+                else:
+                    break
                 if news_words[j].endswith('.') or i - j > 5:
                     break
-                j -= 1
-            j = i + 1
+            j = i
             while True:
+                j += 1
                 if j < len(news_words):
                     snippet_words.add(j)
+                else:
+                    break
                 if news_words[j].endswith('.') or j - i > 5:
                     break
-                j += 1
 
     sentence_ranges = []
     for k, g in groupby(enumerate(snippet_words), lambda x: x[0] - x[1]):
@@ -165,5 +169,5 @@ def view_news(news_id):
     n = dict(zip(data_keys, sheet.row_values(int(news_id))))
     n['date'] = n['date'][:-7]
     n['content'] = remove_html(n['content'])
-    n['tags'] = n['tags'][1:-1].replace('"', '').split(',')
+    n['tags'] = n['tags'][1:-1].replace('\"', '').split(',') if n['tags'] != '[]' else []
     return n
