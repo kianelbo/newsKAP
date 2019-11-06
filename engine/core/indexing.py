@@ -9,7 +9,7 @@ if __name__ == "__main__":
 
     postings_list = {}
     for row in range(1, sheet.nrows):
-        token_pos = 1
+        token_pos = -1
         content = remove_html(sheet.cell_value(row, 5))
         for word in content.split():
             token_pos += 1

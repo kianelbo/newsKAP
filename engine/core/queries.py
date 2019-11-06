@@ -1,3 +1,5 @@
+from itertools import groupby
+from operator import itemgetter
 import pickle
 import random
 import shlex
@@ -13,30 +15,58 @@ data_keys = ['date', 'title', 'source', 'summary', 'tags', 'content', 'thumbnail
 
 
 def make_snippet(parts, doc_id):
-    # news_text = remove_html(sheet.cell_value(doc_id, 5))
-    #
-    # sentences = []
-    # i = 0
-    # for s in news_text.split('.'):  # separating sentences
-    #     score = 0
-    #     for part in parts:
-    #         if part in s:
-    #             score += part.count(' ') + 1
-    #     if score > 0:
-    #         sentences.append((s.strip(), score, i))
-    #     i += 1
-    #
-    # # sorting by score and taking at most top 3 sentences
-    # sentences = sorted(sentences, key=lambda t: t[1])[:min(3, len(sentences))]
-    # # keeping the original order
-    # sentences = sorted(sentences, key=lambda t: t[2])
-    #
-    # snippet = '...'.join(sentences[0])
-    # for part in parts:
-    #     snippet.replace(part, '<p class=\"highlight\">' + part + '</p>')
-    #
-    # return snippet
-    return 'snippet'
+    news_words = remove_html(sheet.cell_value(doc_id, 5)).split()
+
+    q_tokens = []
+    for p in parts:
+        if p[1] == 1:
+            q_tokens.append(p[0])
+        elif p[1] == 2:
+            for pw in p[0].split():
+                if pw not in stop_words:
+                    q_tokens.append(pw)
+    for q in q_tokens:
+        for ps in postings_list[q][doc_id]:
+            print(news_words[ps])
+    snippet_words = set()
+    bolds = set()
+    for q in q_tokens:
+        for i in postings_list[q][doc_id]:
+            bolds.add(i)
+            snippet_words.add(i)
+
+            j = i - 1
+            while True:
+                if j >= 0:
+                    snippet_words.add(j)
+                if news_words[j].endswith('.') or i - j > 5:
+                    break
+                j -= 1
+            j = i + 1
+            while True:
+                if j < len(news_words):
+                    snippet_words.add(j)
+                if news_words[j].endswith('.') or j - i > 5:
+                    break
+                j += 1
+    # print([news_words[b] for b in bolds], '\n\n')
+    sentence_ranges = []
+    for k, g in groupby(enumerate(snippet_words), lambda x: x[0] - x[1]):
+        group = (map(itemgetter(1), g))
+        group = list(map(int, group))
+        sentence_ranges.append(range(group[0], group[-1] + 1))
+        if len(sentence_ranges) > 2:
+            break
+
+    snippet = []
+    for rng in sentence_ranges:
+        for i in rng:
+            snippet.append(news_words[i] if i not in bolds else '<p>' + news_words[i] + '</p>')
+        snippet.append('...')
+    if snippet[-2].endswith('.'):
+        snippet.pop()
+
+    return ' '.join(snippet)
 
 
 def query_tokenize(q_str):

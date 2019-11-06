@@ -22,7 +22,7 @@ def api_search():
 
     res['count'] = len(data)
 
-    if request.args['sort'] == '1':  # sort by relevance
+    if request.args['sort'] == 'mostRelevant':  # sort by relevance
         data = sorted(data, key=lambda k: (k['relevance']), reverse=True)
     else:   # sort by date
         data = sorted(data, key=lambda k: str_to_date(k['date']), reverse=True)
