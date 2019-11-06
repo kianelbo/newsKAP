@@ -17,7 +17,7 @@ export class NewsSummaryComponent implements OnInit {
 
   reload(id: string) {
     this.news = null;
-    console.log('getting shit...');
+    console.log('getting id:' + id);
     this.newsService.getNews(id).subscribe(res => {
       console.log(res);
       this.news = res;

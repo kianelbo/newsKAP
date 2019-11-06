@@ -4,7 +4,7 @@
 
       <div class="row no-gutters justify-content-end search-box">
         <div class="col-6">
-          <input [(ngModel)]="searchText" class="form-control form-control-lg" type="search" placeholder="جستجو خبر">
+          <input [(ngModel)]="searchText" (keyup.enter)="doSearch()" class="form-control form-control-lg" type="search" placeholder="جستجو خبر">
         </div>
         <div class="col-auto search-col" (click)="doSearch()">
           <svg class="search-icon" xmlns="http://www.w3.org/2000/svg"
@@ -21,10 +21,10 @@
 <div class="container">
   <div class="row justify-content-end sort-selection">
     <div class="col-auto">
-      <a class="sort-item" (click)="sortMethod='mostRelevant'; reSearch()" [ngClass]="{'sort-active' : sortMethod==='mostRelevant'}">مرتبط ترین</a>
+      <a class="sort-item" (click)="sortMethod='mostRelevant'; reSearch()" [ngClass]="{'sort-active' : sortMethod==='mostRelevant'}">مرتبط‌ترین</a>
     </div>
     <div class="col-auto">
-      <a class="sort-item" (click)="sortMethod='newest'; reSearch()" [ngClass]="{'sort-active' : sortMethod==='newest'}">جدید ترین</a>
+      <a class="sort-item" (click)="sortMethod='newest'; reSearch()" [ngClass]="{'sort-active' : sortMethod==='newest'}">جدیدترین</a>
     </div>
   </div>
 
@@ -45,7 +45,7 @@
       </a>
       <div class="news-desc" [innerHTML]="news.snippet"></div>
       <p class="news-meta">
-        منبع :{{news.source}}
+        منبع :<a href="http://www.{{news.source}}">{{news.source}}</a>
       </p>
       <p class="news-meta">
         تاریخ :{{news.date}}

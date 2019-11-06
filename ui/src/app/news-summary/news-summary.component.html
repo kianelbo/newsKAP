@@ -13,16 +13,16 @@
       </div>
       <div class="row justify-content-end no-gutters result-box">
         <p class="news-title">{{news.title}}</p>
-        <p class="news-desc">خلاصه خبر :</p>
-        <p class="news-desc">{{news.summary}}</p>
-        <p class="news-desc">کلمات کلیدی :
-          <span *ngFor="let tag of news.tags">{{tag}},&nbsp;</span>
-        </p>
+        <p class="news-summ">{{news.summary}}</p>
+        <div class="news-tags row align-content-end no-gutters">
+          <div *ngFor="let tag of news.tags" class="col-auto">
+            <p class="tag" >{{tag}}</p>
+          </div>
+        </div>
 
-        <p class="news-desc">متن کامل :</p>
         <p class="news-desc">{{news.content}}</p>
         <p class="news-meta">
-          منبع :{{news.source}}
+          منبع :<a href="http://www.{{news.source}}">{{news.source}}</a>
         </p>
         <p class="news-meta">
           تاریخ :{{news.date}}

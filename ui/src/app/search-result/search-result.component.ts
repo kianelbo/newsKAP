@@ -39,6 +39,7 @@ export class SearchResultComponent implements OnInit {
       this.results = res.data;
       this.noResult = false;
     }, err => {
+      this.results = [];
       this.noResult = true;
     });
   }

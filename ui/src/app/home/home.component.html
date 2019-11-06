@@ -43,7 +43,7 @@
           <!--Search Bar-->
           <div class="row no-gutters align-items-center search-box">
             <div class="col text-col">
-              <input [(ngModel)]="searchText" class="form-control form-control-lg" type="search" placeholder="جستجو خبر">
+              <input [(ngModel)]="searchText" (keyup.enter)="doSearch()" class="form-control form-control-lg" type="search" placeholder="جستجو خبر">
             </div>
             <div class="col-auto search-col" (click)="doSearch()">
               <svg class="search-icon" xmlns="http://www.w3.org/2000/svg"
@@ -53,7 +53,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div>s
 
 
     </div>
