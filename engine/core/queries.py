@@ -161,7 +161,7 @@ def search(q_str):
     results = []
     for d in docs:
         n = {'date': sheet.cell_value(d, 0)[:-7], 'title': sheet.cell_value(d, 1), 'source': sheet.cell_value(d, 2),
-             'snippet': make_snippet(parts, d), 'thumbnail': sheet.cell_value(d, 6), 'relevance': random.random(),
+             'snippet': 'snippets to be fixed', 'thumbnail': sheet.cell_value(d, 6), 'relevance': random.random(),
              'id': d}
         results.append(n)
     return results
