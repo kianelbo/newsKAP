@@ -1,12 +1,14 @@
 import pickle
 import xlrd
 
-from configs import dataset_path, index_file_path
+from configs import dataset_path, doc_vectors_path, index_file_path
 from core.processing import clean_token, remove_html, stop_words
+from core.ranking import calc_tf_idf_docs
 
 if __name__ == "__main__":
     sheet = xlrd.open_workbook(dataset_path).sheet_by_index(0)
 
+    # index file: dictionary - postings lists - positional indices
     postings_list = {}
     for row in range(1, sheet.nrows):
         token_pos = -1
@@ -19,3 +21,9 @@ if __name__ == "__main__":
 
     with open(index_file_path, 'wb') as index_file:
         pickle.dump(postings_list, index_file)
+
+    # document vectors
+    document_vectors = calc_tf_idf_docs(postings_list)
+
+    with open(doc_vectors_path, 'wb') as vectors_file:
+        pickle.dump(document_vectors, vectors_file)
