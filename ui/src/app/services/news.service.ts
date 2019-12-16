@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {NewsMiniModel} from '../models/news.mini.model';
 import {NewsModel} from '../models/news.model';
 import {NewsResponseModel} from '../models/news.response.model';
 
