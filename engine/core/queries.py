@@ -1,15 +1,12 @@
 from itertools import groupby
 from operator import itemgetter
-import pickle
-import random
 import shlex
-import xlrd
-from configs import dataset_path, index_file_path
+from configs import load_index_file, sheet
 from core.processing import clean_token, remove_html, stop_words
+from core.ranking import compute_score
 
-postings_list = pickle.load(open(index_file_path, 'rb'))
+postings_list = load_index_file()
 vocabulary = postings_list.keys()
-sheet = xlrd.open_workbook(dataset_path).sheet_by_index(0)
 
 data_keys = ['date', 'title', 'source', 'summary', 'tags', 'content', 'thumbnail']
 
@@ -74,33 +71,41 @@ def make_snippet(parts, doc_id):
 
 
 def query_tokenize(q_str):
+    query_histogram = {}
     phrase_tokens = []
     not_tokens = []
     regular_tokens = []
     source_phrase = ""
     category_phrase = ""
+
     for q in shlex.split(q_str):
-        cleaned_q = clean_token(q)
-        if cleaned_q in stop_words:
-            continue
         if ' ' in q:
-            phrase_tokens.append((' '.join([clean_token(phrase_word) for phrase_word in q.split()]), 2))
-        elif q[0] == '!':
-            not_tokens.append((cleaned_q, 3))
+            this_phrase = []
+            for phrase_word in q.split():
+                cleaned_word = clean_token(phrase_word)
+                this_phrase.append(cleaned_word)
+                if cleaned_word in postings_list:
+                    query_histogram[cleaned_word] = query_histogram.setdefault(cleaned_word, 0) + 1
+            phrase_tokens.append(this_phrase)
+            continue
+
+        cleaned_q = clean_token(q)
+        if q[0] == '!':
+            if cleaned_q in postings_list:
+                not_tokens.append(cleaned_q)
         elif q.startswith('source:'):
             source_phrase = q[7:]
         elif q.startswith('cat:'):
             category_phrase = q[4:]
-        else:
-            regular_tokens.append((cleaned_q, 1))
-    regular_tokens.sort(key=lambda x: len(postings_list[x[0]]))
-    return phrase_tokens + regular_tokens + not_tokens, source_phrase, category_phrase
+        elif cleaned_q in postings_list:
+            regular_tokens.append(cleaned_q)
+            query_histogram[cleaned_q] = query_histogram.setdefault(cleaned_q, 0) + 1
+    return query_histogram, phrase_tokens, regular_tokens, not_tokens, source_phrase, category_phrase
 
 
-def search_phrase(phrase):
+def search_phrase(words):
     results = set()
 
-    words = phrase.split()
     s = 0
     while s < len(words) and words[s] in stop_words:
         s += 1
@@ -127,42 +132,35 @@ def search_phrase(phrase):
     return results
 
 
-def retrieve_docs(parts):
+def retrieve_docs(phrases, regular_tokens, not_tokens):
     docs = set()
+    if not regular_tokens:
+        if not phrases:
+            return docs
+        docs = search_phrase(phrases[0])
 
-    if not parts or parts[0][1] == 3:  # empty query or without regular tokens or phrases
-        return docs
-
-    if parts[0][1] == 2:  # first searching the phrase if exists
-        docs = search_phrase(parts[0][0])
-    else:  # regular word
-        docs.update(postings_list[parts[0][0]].keys())
-
-    for t in parts[1:]:
-        if not docs:
-            break
-        if t[1] == 2:
-            docs &= search_phrase(t[0])
-        elif t[1] == 3:
-            docs -= set(postings_list[t[0]].keys())
-        else:
-            docs &= set(postings_list[t[0]].keys())
+    for rt in regular_tokens:
+        docs |= set(postings_list[rt].keys())
+    for ph in phrases[1:]:
+        docs &= search_phrase(ph)
+    for nt in not_tokens:
+        docs -= set(postings_list[nt].keys())
 
     return docs
 
 
 def search(q_str):
-    parts, source, category = query_tokenize(q_str)
+    query_histogram, phrase_tokens, regular_tokens, not_tokens, source, category = query_tokenize(q_str)
 
     if source or category:
         pass
 
-    docs = retrieve_docs(parts)
+    docs = retrieve_docs(phrase_tokens, regular_tokens, not_tokens)
     results = []
     for d in docs:
         n = {'date': sheet.cell_value(d, 0)[:-7], 'title': sheet.cell_value(d, 1), 'source': sheet.cell_value(d, 2),
-             'snippet': 'snippets to be fixed', 'thumbnail': sheet.cell_value(d, 6), 'relevance': random.random(),
-             'id': d}
+             'snippet': 'snippets to be fixed', 'thumbnail': sheet.cell_value(d, 6),
+             'relevance': compute_score(query_histogram, d), 'id': d}
         results.append(n)
     return results
 

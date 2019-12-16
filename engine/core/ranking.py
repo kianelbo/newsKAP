@@ -1,30 +1,9 @@
 import numpy as np
-import pickle
 
-from configs import doc_vectors_path
-from core.queries import sheet, postings_list
+from configs import doc_count, load_index_file, load_vectors_file
 
-doc_count = sheet.nrows
-document_vectors = pickle.load(open(doc_vectors_path, 'rb'))
-
-
-def calc_tf_idf_docs(indices):
-    doc_vectors = {}
-    # raw tf idf
-    for term in indices:
-        idf = np.log(doc_count / len(term))
-        for doc in term:
-            tf = np.log(len(doc)) + 1
-            doc_vectors[doc][term] = idf * tf
-    # normalization
-    for doc in doc_vectors:
-        vector_mag = 0
-        for e in doc_vectors[doc]:
-            vector_mag += np.power(doc_vectors[doc][e], 2)
-        vector_mag = np.sqrt(vector_mag)
-        for e in doc_vectors[doc]:
-            doc_vectors[doc][e] /= vector_mag
-    return doc_vectors
+postings_list = load_index_file()
+document_vectors = load_vectors_file()
 
 
 def query_tf_idf(query_histogram):
@@ -39,12 +18,12 @@ def query_tf_idf(query_histogram):
 
 def cos_similarity(query_vector, query_vector_mag, doc_vector_normalized):
     dot_product = 0
-    for e in query_vector:
-        if e in doc_vector_normalized:
-            dot_product += query_vector[e] * doc_vector_normalized[e]
+    for i in query_vector:
+        if i in doc_vector_normalized:
+            dot_product += query_vector[i] * doc_vector_normalized[i]
     return dot_product / query_vector_mag
 
 
-def compute_score(query_histogram, doc):
+def compute_score(query_histogram, doc_id):
     query_vector, query_vector_mag = query_tf_idf(query_histogram)
-    return cos_similarity(query_vector, query_vector_mag, document_vectors[doc])
+    return cos_similarity(query_vector, query_vector_mag, document_vectors[doc_id])
