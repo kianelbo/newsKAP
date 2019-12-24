@@ -138,10 +138,13 @@ def retrieve_docs(phrases, regular_tokens, not_tokens):
         if not phrases:
             return docs
         docs = search_phrase(phrases[0])
+        for ph in phrases[1:]:
+            docs &= search_phrase(ph)
+            return docs
 
     for rt in regular_tokens:
         docs |= set(postings_list[rt].keys())
-    for ph in phrases[1:]:
+    for ph in phrases:
         docs &= search_phrase(ph)
     for nt in not_tokens:
         docs -= set(postings_list[nt].keys())
