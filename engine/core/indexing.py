@@ -20,12 +20,12 @@ if __name__ == "__main__":
 
     # building document vectors file
     document_vectors = [dict() for d in range(doc_count + 1)]
-    # raw tf idf
+    # raw tf
     for term in postings_list:
         # idf = np.log(doc_count / len(postings_list[term]))
         for doc in postings_list[term]:
             tf = np.log(len(postings_list[term][doc])) + 1
-            document_vectors[doc][term] = tf # * idf
+            document_vectors[doc][term] = tf  # * idf
     # normalization
     for vector in document_vectors:
         vector_mag = 0
