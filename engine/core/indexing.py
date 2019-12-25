@@ -1,6 +1,7 @@
+import heapq
 import numpy as np
 
-from configs import doc_count, save_index_file, save_vectors_file, sheet
+from configs import champions_r_param, doc_count, save_champions_list, save_index_file, save_vectors_file, sheet
 from core.processing import clean_token, remove_html, stop_words
 
 if __name__ == "__main__":
@@ -18,14 +19,21 @@ if __name__ == "__main__":
     save_index_file(postings_list)
     print("successfully created the index file")
 
-    # building document vectors file
+    # building document vectors file and champions list
     document_vectors = [dict() for d in range(doc_count + 1)]
+    champions_list = {}
     # raw tf
     for term in postings_list:
+        champions = []
         # idf = np.log(doc_count / len(postings_list[term]))
         for doc in postings_list[term]:
             tf = np.log(len(postings_list[term][doc])) + 1
             document_vectors[doc][term] = tf  # * idf
+            champions.append((tf, doc))
+        # extracting champions
+        heapq.heapify(champions)
+        champions_list[term] = [doc[1] for doc in champions[:champions_r_param]]
+
     # normalization
     for vector in document_vectors:
         vector_mag = 0
@@ -37,3 +45,6 @@ if __name__ == "__main__":
 
     save_vectors_file(document_vectors)
     print("successfully created the vectors file")
+
+    save_champions_list(champions_list)
+    print("successfully created the champions list file")

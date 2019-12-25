@@ -1,18 +1,17 @@
 import shlex
-from configs import load_index_file, sheet
+from configs import sheet, load_index_file, load_champions_list, champions_r_param
 from core.processing import clean_token, remove_html, stop_words
 from core.ranking import compute_score
 
 postings_list = load_index_file()
 vocabulary = postings_list.keys()
+champions_list = load_champions_list()
 
 data_keys = ['date', 'title', 'source', 'summary', 'tags', 'content', 'thumbnail']
 
 
 def make_snippet(regular_tokens, phrase_tokens, doc_id):
     news_words = remove_html(sheet.cell_value(doc_id, 5)).split()
-    print("regular tokens:", regular_tokens)
-    print("phrase tokens:", phrase_tokens)
 
     phrase_snippet_limit = 2
     regular_snippet_limit = 6
@@ -22,14 +21,11 @@ def make_snippet(regular_tokens, phrase_tokens, doc_id):
         if phrase_snippet_limit == 0:
             break
         for i in postings_list[phrase[0]][doc_id]:
-            print(f"checking if position {i} makes a phrase ...")
             valid_i = True
             # check if this i represents a phrase
             for j, phrase_word in enumerate(phrase[1:]):
-                print(f"checking position {i+j+1}")
                 if doc_id not in postings_list[phrase_word] or i + j + 1 not in postings_list[phrase_word][doc_id]:
                     valid_i = False
-                    print("i invalid")
                     break
             if valid_i:
                 phrase_snippet_limit -= 1
@@ -120,24 +116,32 @@ def search_phrase(words):
     return results
 
 
-def retrieve_docs(phrases, regular_tokens, not_tokens):
+def retrieve_docs(query_histogram, phrases, regular_tokens, not_tokens):
     docs = set()
-    if not regular_tokens:
-        if not phrases:
-            return docs
+    local_champions = set()
+
+    for t in query_histogram:
+        local_champions.update(champions_list[t])
+
+    if not phrases:  # in case query does not have phrases
+        for rt in regular_tokens:
+            docs |= set(postings_list[rt].keys())
+    else:  # in case query has phrases
         docs = search_phrase(phrases[0])
         for ph in phrases[1:]:
             docs &= search_phrase(ph)
-            return docs
 
-    for rt in regular_tokens:
-        docs |= set(postings_list[rt].keys())
-    for ph in phrases:
-        docs &= search_phrase(ph)
     for nt in not_tokens:
-        docs -= set(postings_list[nt].keys())
+        omitted_docs = set(postings_list[nt].keys())
+        docs -= omitted_docs
+        local_champions -= omitted_docs
 
-    return docs
+    docs = sorted(docs, key=lambda k: k in local_champions)
+    scores = [0] * len(docs)
+    for i in range(len(docs)):
+        scores[i] = compute_score(query_histogram, docs[i])
+
+    return docs, scores
 
 
 def search(q_str):
@@ -146,12 +150,12 @@ def search(q_str):
     if source or category:
         pass
 
-    docs = retrieve_docs(phrase_tokens, regular_tokens, not_tokens)
+    docs, score = retrieve_docs(query_histogram, phrase_tokens, regular_tokens, not_tokens)
     results = []
-    for d in docs:
+    for d, s in zip(docs, score):
         n = {'date': sheet.cell_value(d, 0)[:-7], 'title': sheet.cell_value(d, 1), 'source': sheet.cell_value(d, 2),
              'snippet': make_snippet(regular_tokens, phrase_tokens, d), 'thumbnail': sheet.cell_value(d, 6),
-             'relevance': compute_score(query_histogram, d), 'id': d}
+             'relevance': s, 'id': d}
         results.append(n)
     return results
 
