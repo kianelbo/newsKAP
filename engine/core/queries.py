@@ -137,9 +137,11 @@ def retrieve_docs(query_histogram, phrases, regular_tokens, not_tokens):
         docs -= omitted_docs
         local_champions -= omitted_docs
 
-    docs = sorted(docs, key=lambda k: k in local_champions)
+    docs = sorted(docs, key=lambda k: k in local_champions)[:100]
+    # docs = list(docs)[:100]
+
     scores = [0] * len(docs)
-    for i in range(len(docs)):
+    for i in range(min(len(docs), 20)):
         scores[i] = compute_score(query_histogram, docs[i])
 
     return docs, scores
@@ -148,12 +150,26 @@ def retrieve_docs(query_histogram, phrases, regular_tokens, not_tokens):
 def search(q_str):
     query_histogram, phrase_tokens, regular_tokens, not_tokens, source, category = query_tokenize(q_str)
 
-    if source or category:
-        pass
-
     docs, score = retrieve_docs(query_histogram, phrase_tokens, regular_tokens, not_tokens)
+    docs_and_score = []
+
+    if source and not category:
+        for d, s in zip(docs, score):
+            if sheet.cell_value(d, 2) == source:
+                docs_and_score.append((d, s))
+    elif category and not source:
+        for d, s in zip(docs, score):
+            if sheet.cell_value(d, 7) == category:
+                docs_and_score.append((d, s))
+    elif source and category:
+        for d, s in zip(docs, score):
+            if sheet.cell_value(d, 2) == source and sheet.cell_value(d, 7) == category:
+                docs_and_score.append((d, s))
+    else:
+        docs_and_score = zip(docs, score)
+
     results = []
-    for d, s in zip(docs, score):
+    for d, s in docs_and_score:
         n = {'date': sheet.cell_value(d, 0)[:-7], 'title': sheet.cell_value(d, 1), 'source': sheet.cell_value(d, 2),
              'snippet': make_snippet(regular_tokens, phrase_tokens, d), 'thumbnail': sheet.cell_value(d, 6),
              'relevance': s, 'id': d}
