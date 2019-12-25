@@ -1,6 +1,6 @@
 import shlex
-from configs import sheet, load_index_file, load_champions_list, champions_r_param
-from core.processing import clean_token, remove_html, stop_words
+from configs import sheet, load_index_file, load_champions_list
+from core.processing import clean_token, fix_compounds, remove_html, stop_words
 from core.ranking import compute_score
 
 postings_list = load_index_file()
@@ -11,7 +11,7 @@ data_keys = ['date', 'title', 'source', 'summary', 'tags', 'content', 'thumbnail
 
 
 def make_snippet(regular_tokens, phrase_tokens, doc_id):
-    news_words = remove_html(sheet.cell_value(doc_id, 5)).split()
+    news_words = fix_compounds(remove_html(sheet.cell_value(doc_id, 5))).split()
 
     phrase_snippet_limit = 2
     regular_snippet_limit = 6
@@ -62,6 +62,7 @@ def query_tokenize(q_str):
     source_phrase = ""
     category_phrase = ""
 
+    q_str = fix_compounds(q_str)
     for q in shlex.split(q_str):
         if ' ' in q:
             this_phrase = []

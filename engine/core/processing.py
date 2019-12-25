@@ -1,10 +1,11 @@
 from datetime import datetime
+import re
 import string
 from bs4 import BeautifulSoup
 from hazm import *
 # from finglish import f2p
 
-from configs import equivalents_path, stop_words_path
+from configs import compounds_path, equivalents_path, stop_words_path
 
 stemmer = Stemmer()
 
@@ -18,6 +19,18 @@ with open(equivalents_path, encoding='utf-8') as f:
     for pair in f.readlines():
         pair_wrong, pair_correct = pair.split()
         equivalents[pair_wrong] = pair_correct
+
+compounds_dict = {}
+with open(compounds_path, encoding='utf-8') as f:
+    for pair in f.readlines():
+        pair_wrong, pair_correct = pair.split(',')
+        compounds_dict[pair_wrong] = pair_correct
+compounds_dict = dict((re.escape(k), v) for k, v in compounds_dict.items())
+compounds_pattern = re.compile("|".join(compounds_dict.keys()))
+
+
+def fix_compounds(text):
+    return compounds_pattern.sub(lambda m: compounds_dict[re.escape(m.group(0))], text)
 
 
 def standardize(token):

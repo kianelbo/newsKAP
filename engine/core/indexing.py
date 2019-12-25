@@ -2,7 +2,7 @@ import heapq
 import numpy as np
 
 from configs import champions_r_param, doc_count, save_champions_list, save_index_file, save_vectors_file, sheet
-from core.processing import clean_token, remove_html, stop_words
+from core.processing import clean_token, fix_compounds, remove_html, stop_words
 
 if __name__ == "__main__":
     # building index file
@@ -10,6 +10,7 @@ if __name__ == "__main__":
     for row in range(1, doc_count):
         token_pos = -1
         content = remove_html(sheet.cell_value(row, 5))
+        content = fix_compounds(content)
         for word in content.split():
             token_pos += 1
             cleaned_token = clean_token(word)
