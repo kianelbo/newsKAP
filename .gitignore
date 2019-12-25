@@ -1,5 +1,6 @@
 # Dataset
 *.xlsx
+*.csv
 *.pickle
 
 # IDEs and editors
