@@ -2,12 +2,10 @@ from datetime import datetime
 import re
 import string
 from bs4 import BeautifulSoup
-from hazm import *
-# from finglish import f2p
 
 from configs import compounds_path, equivalents_path, stop_words_path
 
-stemmer = Stemmer()
+endings = ['ات', 'ان', 'ترین', 'تر', 'م', 'ت', 'ش', 'یی', 'ی', 'ها', '‌ا']
 
 stop_words = set()
 with open(stop_words_path, encoding='utf-8') as f:
@@ -34,7 +32,6 @@ def fix_compounds(text):
 
 
 def standardize(token):
-    # token = f2p(token)
     if token in equivalents:
         return equivalents[token]
     return token
@@ -46,13 +43,20 @@ def normalize_text(text):
     text = text.replace('ئ', 'ی')
     text = text.replace('آ', 'ا')
     text = text.replace('أ', 'ا')
+    text = text.replace('ۀ', 'ه')
     for bad_char in '\u200C\u0618\u0619\u061A\u0651':
         text = text.replace(bad_char, '')
     return text
 
 
 def stem(token):
-    return stemmer.stem(token)
+    original_token = token
+    for end in endings:
+        if token.endswith(end):
+            token = token[:-len(end)]
+    if not token or (original_token != token and token in stop_words):
+        return original_token
+    return token
 
 
 def clean_token(token):
