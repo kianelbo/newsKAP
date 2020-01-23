@@ -37,11 +37,7 @@ export class SearchResultComponent implements OnInit {
     this.newsService.getSearchResults(this.searchText, this.page, this.sortMethod).subscribe(res => {
       this.pageCount = Math.ceil(res.count / 10);
       this.results = res.data;
-      if (this.results.length > 0) {
-        this.noResult = false;
-      } else {
-        this.noResult = true;
-      }
+      this.noResult = this.results.length <= 0;
     }, err => {
       this.results = [];
       this.noResult = true;

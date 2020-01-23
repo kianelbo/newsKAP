@@ -1,5 +1,5 @@
 import shlex
-from configs import sheet
+from core.corpus import sheet
 from core.dictionary import load_index_file
 from core.processing import clean_token, fix_compounds, remove_html, stop_words
 from core.ranking import compute_score
@@ -10,7 +10,7 @@ data_keys = ['date', 'title', 'source', 'summary', 'tags', 'content', 'thumbnail
 
 
 def make_snippet(regular_tokens, phrase_tokens, doc_id):
-    news_words = fix_compounds(remove_html(sheet.cell_value(doc_id, 5))).split()
+    news_words = fix_compounds(remove_html(sheet['content'][doc_id])).split()
 
     phrase_snippet_limit = 2
     regular_snippet_limit = 6
@@ -149,31 +149,30 @@ def search(q_str):
 
     if source and not category:
         for d, s in zip(docs, scores):
-            if sheet.cell_value(d, 2) == source:
+            if sheet['url'][d] == source:
                 docs_and_scores.append((d, s))
     elif category and not source:
         for d, s in zip(docs, scores):
-            if sheet.cell_value(d, 7) == category:
+            if sheet['category'][d] == category:
                 docs_and_scores.append((d, s))
     elif source and category:
         for d, s in zip(docs, scores):
-            if sheet.cell_value(d, 2) == source and sheet.cell_value(d, 7) == category:
+            if sheet['url'][d] == source and sheet['category'][d] == category:
                 docs_and_scores.append((d, s))
     else:
         docs_and_scores = zip(docs, scores)
 
     results = []
     for d, s in docs_and_scores:
-        n = {'date': sheet.cell_value(d, 0)[:-7], 'title': sheet.cell_value(d, 1), 'source': sheet.cell_value(d, 2),
-             'snippet': make_snippet(regular_tokens, phrase_tokens, d), 'thumbnail': sheet.cell_value(d, 6),
+        n = {'date': sheet['publish_date'][d], 'title': sheet['title'][d], 'source': sheet['url'][d],
+             'snippet': make_snippet(regular_tokens, phrase_tokens, d), 'thumbnail': sheet['thumbnail'][d],
              'relevance': s, 'id': d}
         results.append(n)
     return results
 
 
 def view_news(news_id):
-    n = dict(zip(data_keys, sheet.row_values(int(news_id))))
-    n['date'] = n['date'][:-7]
+    n = dict(zip(data_keys, list(sheet.iloc[int(news_id)])))
     n['content'] = remove_html(n['content'])
     n['tags'] = n['tags'][1:-1].replace('\"', '').split(',') if n['tags'] != '[]' else []
     return n

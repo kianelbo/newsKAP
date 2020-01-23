@@ -2,7 +2,8 @@ import pickle
 import sys
 import numpy as np
 
-from configs import doc_count, doc_vectors_path
+from configs import doc_vectors_path
+from core.corpus import doc_count
 from core.dictionary import load_index_file
 
 if sys.argv[1] != '-index':

@@ -1,4 +1,4 @@
-from configs import doc_count, sheet
+from core.corpus import sheet
 from core.dictionary import Dictionary
 from core.processing import clean_token, fix_compounds, remove_html, stop_words
 from core.ranking import build_doc_vectors
@@ -6,11 +6,11 @@ from core.ranking import build_doc_vectors
 if __name__ == "__main__":
     # building index file
     dictionary = Dictionary()
-    for row in range(1, doc_count):
+    for row, content in enumerate(sheet['content']):
         token_pos = -1
-        content = remove_html(sheet.cell_value(row, 5))
-        content = fix_compounds(content)
-        for word in content.split():
+        text = remove_html(content)
+        text = fix_compounds(text)
+        for word in text.split():
             token_pos += 1
             cleaned_token = clean_token(word)
             if cleaned_token and cleaned_token not in stop_words:

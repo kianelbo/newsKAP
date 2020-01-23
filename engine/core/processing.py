@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from configs import compounds_path, equivalents_path, stop_words_path
 
 endings = ['ات', 'ان', 'ترین', 'تر', 'م', 'ت', 'ش', 'یی', 'ی', 'ها', '‌ا']
+punctuations = "،؛" + string.punctuation
 
 stop_words = set()
 with open(stop_words_path, encoding='utf-8') as f:
@@ -63,7 +64,7 @@ def clean_token(token):
     # remove numbers
     cleaned = ''.join([letter for letter in token if not letter.isdigit()])
     # remove punctuations
-    cleaned = cleaned.translate(str.maketrans('', '', string.punctuation))
+    cleaned = cleaned.translate(str.maketrans('', '', punctuations))
     # normalizing
     cleaned = normalize_text(cleaned)
     # equivalent check
