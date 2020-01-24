@@ -1,10 +1,8 @@
 import shlex
 from core.corpus import sheet
-from core.dictionary import load_index_file
 from core.processing import clean_token, fix_compounds, remove_html, stop_words
-from core.ranking import compute_score
+from core.ranking import compute_score, dictionary
 
-dictionary = load_index_file()
 
 data_keys = ['date', 'title', 'source', 'summary', 'tags', 'content', 'thumbnail']
 

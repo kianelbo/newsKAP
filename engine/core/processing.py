@@ -1,12 +1,12 @@
 from datetime import datetime
 import re
-import string
 from bs4 import BeautifulSoup
 
 from configs import compounds_path, equivalents_path, stop_words_path
 
+non_farsi_chars = '[^' + 'ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی' + ']'
+normalization_table = str.maketrans('\u0643\u064Aئآأۀ\u0623\u0624ة', 'کییااهاوه',  '')  # substituting bad chars
 endings = ['ات', 'ان', 'ترین', 'تر', 'م', 'ت', 'ش', 'یی', 'ی', 'ها', '‌ا']
-punctuations = "،؛" + string.punctuation
 
 stop_words = set()
 with open(stop_words_path, encoding='utf-8') as f:
@@ -39,15 +39,7 @@ def standardize(token):
 
 
 def normalize_text(text):
-    text = text.replace('\u0643', 'ک')
-    text = text.replace('\u064A', 'ی')
-    text = text.replace('ئ', 'ی')
-    text = text.replace('آ', 'ا')
-    text = text.replace('أ', 'ا')
-    text = text.replace('ۀ', 'ه')
-    for bad_char in '\u200C\u0618\u0619\u061A\u0651':
-        text = text.replace(bad_char, '')
-    return text
+    return re.sub(non_farsi_chars, '', text.translate(normalization_table))
 
 
 def stem(token):
@@ -61,12 +53,8 @@ def stem(token):
 
 
 def clean_token(token):
-    # remove numbers
-    cleaned = ''.join([letter for letter in token if not letter.isdigit()])
-    # remove punctuations
-    cleaned = cleaned.translate(str.maketrans('', '', punctuations))
-    # normalizing
-    cleaned = normalize_text(cleaned)
+    # normalizing and removing invalid characters
+    cleaned = normalize_text(token)
     # equivalent check
     cleaned = standardize(cleaned)
     # stemming

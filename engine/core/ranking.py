@@ -8,7 +8,9 @@ from core.dictionary import load_index_file
 
 if sys.argv[1] != '-index':
     dictionary = load_index_file()
+    print("successfully loaded the dictionary")
     document_vectors = pickle.load(open(doc_vectors_path, 'rb'))
+    print("successfully loaded the doc vectors")
 
 
 def build_doc_vectors(dic):
