@@ -10,7 +10,7 @@ import {NewsMiniModel} from '../models/news.mini.model';
 })
 export class SearchResultComponent implements OnInit {
   searchText = '';
-  sortMethod = 'newest';
+  sortMethod = 'mostRelevant';
   results: NewsMiniModel[];
   noResult = true;
   page = 1;
@@ -42,6 +42,11 @@ export class SearchResultComponent implements OnInit {
       this.results = [];
       this.noResult = true;
     });
+  }
+
+  handleCategory(cat) {
+    this.searchText += ' cat:' + cat;
+    this.doSearch();
   }
 
 }

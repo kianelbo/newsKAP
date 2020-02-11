@@ -1,24 +1,25 @@
+import pickle
+
+from configs import clustering_k, clusters_file_path, indices_file_path
 from core.corpus import sheet
-from core.dictionary import Dictionary
-from core.processing import clean_token, fix_compounds, remove_html, stop_words
-from core.ranking import build_doc_vectors
+from core.inverted_index import InvertedIndex
+from core.processing import stop_words, clean_text, standardize
 
 if __name__ == "__main__":
-    # building index file
-    dictionary = Dictionary()
-    for row, content in enumerate(sheet['content']):
-        token_pos = -1
-        text = remove_html(content)
-        text = fix_compounds(text)
-        for word in text.split():
-            token_pos += 1
-            cleaned_token = clean_token(word)
-            if cleaned_token and cleaned_token not in stop_words:
-                dictionary.add(cleaned_token, row, token_pos)
+    clusters = pickle.load(open(clusters_file_path, 'rb'))
+    inverted_indices = [InvertedIndex() for _ in range(clustering_k)]
+    # building indices file
+    for c in range(clustering_k):
+        for doc_id in clusters[c]:
+            content = sheet['content'][doc_id]
+            content = clean_text(content)
+            token_pos = -1
+            for word in content.split():
+                token_pos += 1
+                cleaned_token = standardize(word)
+                if cleaned_token and cleaned_token not in stop_words:
+                    inverted_indices[c].add(cleaned_token, doc_id, token_pos)
 
-    dictionary.save()
-    print("successfully created the index file")
-
-    # building doc vectors file
-    build_doc_vectors(dictionary)
-    print("successfully created the vectors file")
+    with open(indices_file_path, 'wb') as indices_file:
+        pickle.dump(inverted_indices, indices_file)
+    print("successfully created the indices file")

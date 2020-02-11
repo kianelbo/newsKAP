@@ -54,3 +54,33 @@
   padding: 10px;
   //padding-right: 8px;
 }
+
+.news-related-title {
+  display: block;
+  font-family: IRANSans;
+  direction: rtl;
+  text-align: right;
+  font-size: 22px;
+  margin: 40px 20px 20px 0;
+}
+
+.news-related {
+  display: block;
+  font-family: IRANSans;
+  direction: rtl;
+  text-align: right;
+  font-size: 12px;
+  margin: 0 30px 8px 0;
+
+  a {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  span {
+    margin-right: 5px;
+    color: #CCC;
+    font-size: 10px;
+  }
+}

@@ -13,46 +13,62 @@
           </svg>
         </div>
       </div>
-
     </div>
   </div>
-</div>
 
-<div class="container">
-  <div class="row justify-content-end sort-selection">
-    <div class="col-auto">
-      <a class="sort-item" (click)="sortMethod='mostRelevant'; reSearch()" [ngClass]="{'sort-active' : sortMethod==='mostRelevant'}">مرتبط‌ترین</a>
-    </div>
+  <div class="row justify-content-end sort-selection no-gutters">
     <div class="col-auto">
       <a class="sort-item" (click)="sortMethod='newest'; reSearch()" [ngClass]="{'sort-active' : sortMethod==='newest'}">جدیدترین</a>
     </div>
-  </div>
-
-  <div *ngIf="noResult">
-    <div class="row justify-content-center">
-      <img class="notfound-img" src="../../assets/image/no-resultfound.png"/>
-    </div>
-    <div class="row justify-content-center">
-      <p class="notfound-text">نتیجه ای یافت نشد :(</p>
+    <div class="col-auto">
+      <a class="sort-item" (click)="sortMethod='mostRelevant'; reSearch()" [ngClass]="{'sort-active' : sortMethod==='mostRelevant'}">مرتبط‌ترین</a>
     </div>
   </div>
 
-  <div *ngFor="let news of results" class="row justify-content-end no-gutters result-box">
-    <div class="col-9">
-      <a class="news-title" data-toggle="modal" data-target="#exampleModal" href=""
-         (click)="newsSummaryComponent.reload(news.id);">
-        {{news.title}}
-      </a>
-      <div class="news-desc" [innerHTML]="news.snippet"></div>
-      <p class="news-meta">
-        منبع :<a href="http://www.{{news.source}}">{{news.source}}</a>
-      </p>
-      <p class="news-meta">
-        تاریخ :{{news.date}}
-      </p>
+  <div class="row">
+    <div class="col-9 offset-1">
+      <div *ngIf="noResult">
+        <div class="row justify-content-center">
+          <img class="notfound-img" src="../../assets/image/no-resultfound.png"/>
+        </div>
+        <div class="row justify-content-center">
+          <p class="notfound-text">نتیجه ای یافت نشد :(</p>
+        </div>
+      </div>
+      <div *ngFor="let news of results" class="row justify-content-end no-gutters result-box">
+        <div class="col-9">
+          <div class="news-title">
+            <a data-toggle="modal" data-target="#exampleModal" href=""
+               (click)="newsSummaryComponent.reload(news.id);">
+              {{news.title}}
+            </a><span class="news-category">{{news.category}}</span>
+          </div>
+          <div class="news-desc" [innerHTML]="news.snippet"></div>
+          <p class="news-meta">
+            منبع :<a href="http://www.{{news.source}}">{{news.source}}</a>
+          </p>
+          <p class="news-meta">
+            تاریخ :{{news.date}}
+          </p>
+        </div>
+        <img #thumb class="col-3 news-img" src="{{news.thumbnail || '../../assets/image/default_img.png'}}"
+             (error)="thumb.src='../../assets/image/default_img.png'" alt=""/>
+      </div>
     </div>
-    <img #thumb class="col-3 news-img" src="{{news.thumbnail || '../../assets/image/default_img.png'}}"
-         (error)="thumb.src='../../assets/image/default_img.png'" alt=""/>
+    <div class="col-2">
+      <div class="category-box">
+        <ul class="category-list">
+          <li (click)="handleCategory('science')"><a>علمی</a></li>
+          <li (click)="handleCategory('culture')"><a>فرهنگ و هنر</a></li>
+          <li (click)="handleCategory('politics')"><a>سیاسی</a></li>
+          <li (click)="handleCategory('economic')"><a>اقتصاد</a></li>
+          <li (click)="handleCategory('social')"><a>اجتماعی</a></li>
+          <li (click)="handleCategory('international')"><a>بین الملل</a></li>
+          <li (click)="handleCategory('sport')"><a>ورزشی</a></li>
+          <li (click)="handleCategory('multimedia')"><a>چندرسانه ای</a></li>
+        </ul>
+      </div>
+    </div>
   </div>
 
   <app-news-summary #newsSummaryComponent></app-news-summary>

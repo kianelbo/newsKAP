@@ -5,5 +5,6 @@ export class NewsMiniModel {
   snippet: string;
   thumbnail: string;
   relevance: number;
+  category: string;
   id: string;
 }

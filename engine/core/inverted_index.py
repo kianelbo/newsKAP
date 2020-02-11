@@ -1,13 +1,4 @@
-import pickle
-
-from configs import index_file_path
-
-
-def load_index_file():
-    return pickle.load(open(index_file_path, 'rb'))
-
-
-class Dictionary:
+class InvertedIndex:
     def __init__(self):
         self.mapping = {}
         self.postings_lists = {}
@@ -19,6 +10,9 @@ class Dictionary:
 
     def __contains__(self, item):
         return item in self.mapping
+
+    def __len__(self):
+        return len(self.mapping)
 
     def add(self, word, doc_id, positional):
         if word not in self.mapping:
@@ -38,7 +32,3 @@ class Dictionary:
 
     def term_frequency(self, term_id, doc_id):
         return len(self.postings_lists[term_id][doc_id])
-
-    def save(self):
-        with open(index_file_path, 'wb') as index_file:
-            pickle.dump(self, index_file)

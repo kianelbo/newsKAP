@@ -27,6 +27,9 @@
         <p class="news-meta">
           تاریخ: {{news.date}}
         </p>
+        <p *ngIf="news.duplicates.length > 0" class="news-related-title">اخبار مشابه</p>
+        <p *ngFor="let dup of news.duplicates" class="news-related"><a (click)="reload(dup.id)">{{dup.title}}</a> <span>{{dup.source}}</span></p>
+
       </div>
     </div>
   </div>s

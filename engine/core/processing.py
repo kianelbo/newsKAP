@@ -1,17 +1,16 @@
 from datetime import datetime
 import re
-from bs4 import BeautifulSoup
 
 from configs import compounds_path, equivalents_path, stop_words_path
 
-non_farsi_chars = '[^' + 'ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی' + ']'
-normalization_table = str.maketrans('\u0643\u064Aئآأۀ\u0623\u0624ة', 'کییااهاوه',  '')  # substituting bad chars
+non_farsi_chars = '[^' + 'ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی ' + ']'
+normalization_table = str.maketrans('\u0643\u064Aئآأۀ\u0623\u0624ة', 'کییااهاوه', '')  # substituting bad chars
 endings = ['ات', 'ان', 'ترین', 'تر', 'م', 'ت', 'ش', 'یی', 'ی', 'ها', '‌ا']
 
-stop_words = set()
+stop_words = list()
 with open(stop_words_path, encoding='utf-8') as f:
     for w in f.readlines():
-        stop_words.add(w.strip())
+        stop_words.append(w.strip())
 
 equivalents = {}
 with open(equivalents_path, encoding='utf-8') as f:
@@ -34,8 +33,8 @@ def fix_compounds(text):
 
 def standardize(token):
     if token in equivalents:
-        return equivalents[token]
-    return token
+        token = equivalents[token]
+    return stem(token)
 
 
 def normalize_text(text):
@@ -43,6 +42,8 @@ def normalize_text(text):
 
 
 def stem(token):
+    if token in stop_words:
+        return token
     original_token = token
     for end in endings:
         if token.endswith(end):
@@ -50,6 +51,20 @@ def stem(token):
     if not token or (original_token != token and token in stop_words):
         return original_token
     return token
+
+
+def tokenize(text):
+    tokens = [word for word in text.split()]
+    stemmed_tokens = [stem(item) for item in tokens]
+    return stemmed_tokens
+
+
+def clean_text(text):
+    # normalizing and removing invalid characters
+    cleaned = normalize_text(text)
+    # fixing compounds
+    cleaned = fix_compounds(cleaned)
+    return cleaned
 
 
 def clean_token(token):
@@ -60,10 +75,6 @@ def clean_token(token):
     # stemming
     cleaned = stem(cleaned)
     return cleaned
-
-
-def remove_html(text):
-    return BeautifulSoup(text, features="html.parser").get_text()
 
 
 def str_to_date(d):

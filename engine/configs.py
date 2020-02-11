@@ -6,9 +6,18 @@ data_dir = path.join(path.dirname(path.dirname(path.realpath(__file__))), 'data'
 stop_words_path = path.join(data_dir, 'sw.txt')
 equivalents_path = path.join(data_dir, 'equivalents.txt')
 compounds_path = path.join(data_dir, 'compounds.txt')
-# dataset_path = path.join(data_dir, 'IR-F19-Project02-14k.csv')
-dataset_path = path.join(data_dir, '150k/')
-# index_file_path = path.join(data_dir, 'dictionary-14k.pickle')
-index_file_path = path.join(data_dir, 'dictionary-150k.pickle')
-# doc_vectors_path = path.join(data_dir, 'doc-vectors-14k.pickle')
-doc_vectors_path = path.join(data_dir, 'doc-vectors-150k.pickle')
+
+dataset_path = path.join(data_dir, 'refined_dataset.csv')
+
+vectorizer_file_path = path.join(data_dir, 'vectorizer.pickle')
+kmeans_file_path = path.join(data_dir, 'kmeans.pickle')
+clusters_file_path = path.join(data_dir, 'clusters.pickle')
+duplicates_path = path.join(data_dir, 'duplicates.pickle')
+indices_file_path = path.join(data_dir, 'indices.pickle')
+doc_vectors_path = path.join(data_dir, 'doc-vectors.pickle')
+
+
+# number of clusters
+clustering_k = 20
+# dimension of doc vectors
+max_features = 10000

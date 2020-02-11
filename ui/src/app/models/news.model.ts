@@ -1,3 +1,5 @@
+import { NewsMiniModel } from './news.mini.model';
+
 export class NewsModel {
   date: string;
   title: string;
@@ -6,4 +8,6 @@ export class NewsModel {
   tags: string[];
   content: string;
   thumbnail: string;
+  category: string;
+  duplicates: NewsMiniModel[];
 }
